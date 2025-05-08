@@ -57,6 +57,27 @@ public class TripsService : ITripsService
             throw new Exception("Failed to retrieve trips: " + ex.Message);
         }
     }
+    public async Task<bool> TripExists(SqlConnection conn, int tripId)
+    {
+        var cmd = new SqlCommand("SELECT 1 FROM Trip WHERE IdTrip = @TripId", conn);
+        cmd.Parameters.AddWithValue("@TripId", tripId);
+        return await cmd.ExecuteScalarAsync() is not null;
+    }
+
+    public async Task<bool> HasTripFreeSpace(SqlConnection conn, int tripId)
+    {
+        var maxCmd = new SqlCommand("SELECT MaxPeople FROM Trip WHERE IdTrip = @TripId", conn);
+        maxCmd.Parameters.AddWithValue("@TripId", tripId);
+        var max = (int?)await maxCmd.ExecuteScalarAsync();
+        if (max is null) return false;
+
+        var countCmd = new SqlCommand("SELECT COUNT(*) FROM Client_Trip WHERE IdTrip = @TripId", conn);
+        countCmd.Parameters.AddWithValue("@TripId", tripId);
+        var count = (int)await countCmd.ExecuteScalarAsync();
+
+        return count < max;
+    }
+
     
     public async Task<TripDTO?> GetTrip(int id)
     {

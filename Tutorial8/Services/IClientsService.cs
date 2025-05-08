@@ -8,4 +8,6 @@ public interface IClientsService
     Task<int> CreateClient(CreateClientDTO clientDto);
     Task RegisterClientForTrip(int clientId, int tripId);
     Task RemoveClientFromTrip(int clientId, int tripId);
+    Task<bool> IsClientAlreadyRegistered(SqlConnection conn, int clientId, int tripId); 
+    Task<bool> ClientExists(SqlConnection conn, int clientId);
 }
